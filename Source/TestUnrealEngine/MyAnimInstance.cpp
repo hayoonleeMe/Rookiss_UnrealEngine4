@@ -2,15 +2,23 @@
 
 
 #include "MyAnimInstance.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 // 한 프레임의 호출순서상 엔진이 입력시스템을 먼저 호출한 다음에 콘텐츠 로직을 다 실행하고, 그 다음에 최종적으로 AnimInstance의 이런 업데이트 함수를 호출한다.
 void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	auto pawn = TryGetPawnOwner();	
-	if (IsValid(pawn))
+	auto Pawn = TryGetPawnOwner();	
+	if (IsValid(Pawn))
 	{
-		Speed = pawn->GetVelocity().Size();
+		Speed = Pawn->GetVelocity().Size();
+
+		auto Character = Cast<ACharacter>(Pawn);
+		if (Character)
+		{
+			IsFalling = Character->GetMovementComponent()->IsFalling();
+		}
 	}
-}
+}	
