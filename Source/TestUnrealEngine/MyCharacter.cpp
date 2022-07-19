@@ -6,11 +6,12 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "MyAnimInstance.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
@@ -48,7 +49,9 @@ void AMyCharacter::PostInitializeComponents()
 	AnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
 	if (AnimInstance)
 	{
+		// OnMontageEnded 델레게이트는 Dynamic Multicast Delegate이므로 AddDynamic 매크로를 통해 바인딩한다.
 		AnimInstance->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnAttackMontageEnded);
+		AnimInstance->OnAttackHit.AddUObject(this, &AMyCharacter::AttackCheck);
 	}
 }
 
@@ -83,6 +86,44 @@ void AMyCharacter::Attack()
 	AttackIndex = (AttackIndex + 1) % 3;
 
 	IsAttacking = true;
+}
+
+void AMyCharacter::AttackCheck()
+{
+	// 충돌을 판정하는 과정
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+
+	float AttackRange = 100.f;
+	float AttackRadius = 50.f;
+
+	bool bResult = GetWorld()->SweepSingleByChannel(
+		OUT HitResult,
+		GetActorLocation(),
+		GetActorLocation() + GetActorForwardVector() * AttackRange,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel2,
+		FCollisionShape::MakeSphere(AttackRadius),
+		Params);
+
+	FVector Vec = GetActorForwardVector() * AttackRange;
+	FVector Center = GetActorLocation() + Vec * 0.5f;
+	float HalfHeight = AttackRange * 0.5f + AttackRadius;
+	FQuat Rotation = FRotationMatrix::MakeFromZ(Vec).ToQuat();
+	FColor DrawColor;
+	if (bResult)
+		DrawColor = FColor::Green;
+	else
+		DrawColor = FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), Center, HalfHeight, AttackRadius, Rotation, DrawColor, false, 2.f);
+
+	// UE5에서 FHitResult.Actor가 FHitResult.GetActor()로 대체되었다.
+	// 이제 더이상 IsValid()로 체크하지 않아도 된다.
+	if (bResult && HitResult.GetActor())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Hit Actor : %s"), *HitResult.GetActor()->GetName());
+	}
 }
 
 void AMyCharacter::UpDown(float Value)

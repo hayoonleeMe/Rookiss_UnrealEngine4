@@ -29,6 +29,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void Attack();
+	void AttackCheck();
+
 	void UpDown(float Value);
 	void LeftRight(float Value);
 	void Yaw(float Value);
