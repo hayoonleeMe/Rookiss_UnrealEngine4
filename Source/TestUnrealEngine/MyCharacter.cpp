@@ -46,7 +46,10 @@ void AMyCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	AnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
-	AnimInstance->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnAttackMontageEnded);
+	if (AnimInstance)
+	{
+		AnimInstance->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnAttackMontageEnded);
+	}
 }
 
 // Called every frame
@@ -74,6 +77,10 @@ void AMyCharacter::Attack()
 		return;
 
 	AnimInstance->PlayAttackMontage();
+
+	AnimInstance->JumpToSection(AttackIndex);
+
+	AttackIndex = (AttackIndex + 1) % 3;
 
 	IsAttacking = true;
 }
