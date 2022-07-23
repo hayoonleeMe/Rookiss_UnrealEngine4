@@ -197,6 +197,7 @@ void AMyCharacter::Yaw(float Value)
 void AMyCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	IsAttacking = false;
+	OnAttackEnd.Broadcast();
 }
 
 // 피격당한 쪽의 TakeDamage가 호출되므로 여기서 Stat은 피격당한 쪽의 Stat이다.
