@@ -11,6 +11,7 @@
 #include "MyStatComponent.h"
 #include "Components/WidgetComponent.h"
 #include "MyCharacterWidget.h"
+#include "MyAIController.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -54,6 +55,12 @@ AMyCharacter::AMyCharacter()
 		HpBar->SetWidgetClass(UW.Class);
 		HpBar->SetDrawSize(FVector2D(200.f, 50.f));
 	}
+
+	// APawn 클래스에 기본으로 정의되어 있는 AIControllerClass를 설정한다.
+	// MyCharacter가 AI로 조종될 때 어떤 컨트롤러에 의해 조종되는지를 설정한다.
+	AIControllerClass = AMyAIController::StaticClass();
+	// 어떤 상황에서 빙의되어 AI로 조종될지를 정한다.
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 // Called when the game starts or when spawned
