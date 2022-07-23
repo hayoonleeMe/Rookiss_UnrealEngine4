@@ -9,6 +9,8 @@
 #include "DrawDebugHelpers.h"
 #include "MyWeapon.h"
 #include "MyStatComponent.h"
+#include "Components/WidgetComponent.h"
+#include "MyCharacterWidget.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -38,6 +40,20 @@ AMyCharacter::AMyCharacter()
 	}
 
 	Stat = CreateDefaultSubobject<UMyStatComponent>(TEXT("STAT"));
+
+	// Hp바 설정
+	HpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBAR"));
+	HpBar->SetupAttachment(GetMesh());	
+	HpBar->SetRelativeLocation(FVector(0.f, 0.f, 200.f));
+	// Screen은 절대 잘리지 않게 화면상에 렌더링된다.
+	HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+	
+	static ConstructorHelpers::FClassFinder<UUserWidget> UW(TEXT("WidgetBlueprint'/Game/UI/WBP_HpBar.WBP_HpBar_C'"));
+	if (UW.Succeeded())
+	{
+		HpBar->SetWidgetClass(UW.Class);
+		HpBar->SetDrawSize(FVector2D(200.f, 50.f));
+	}
 }
 
 // Called when the game starts or when spawned
@@ -70,6 +86,14 @@ void AMyCharacter::PostInitializeComponents()
 		AnimInstance->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnAttackMontageEnded);
 		AnimInstance->OnAttackHit.AddUObject(this, &AMyCharacter::AttackCheck);
 	}
+
+	// 컴포넌트 초기화 전에 InitWidget을 수행해 위젯이 반드시 초기화되도록 보장해준다.
+	// 버전에 따라서 이 메소드를 수행하지 않으면 작동안되는 경우도 있으므로 필수
+	HpBar->InitWidget();
+
+	auto HpWidget = Cast<UMyCharacterWidget>(HpBar->GetUserWidgetObject());
+	if (HpWidget)
+		HpWidget->BindHp(Stat);
 }
 
 // Called every frame
