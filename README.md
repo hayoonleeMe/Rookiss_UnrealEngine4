@@ -1,5 +1,5 @@
-# Rookiss_UnrealEngine5
+# Rookiss_UnrealEngine4
 
-¾ğ¸®¾ó¿£Áø5·Î ½Ç½ÀÁøÇà
+ì–¸ë¦¬ì–¼ì—”ì§„5ë¡œ ì‹¤ìŠµì§„í–‰
 
-Content/ParagonGreystone Æú´õ´Â ¿ë·®¹®Á¦·Î ¾÷·ÎµåX
+Content/ParagonGreystone í´ë”ëŠ” ìš©ëŸ‰ë¬¸ì œë¡œ ì—…ë¡œë“œX
